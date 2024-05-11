@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Template</title>
+    <style>
+        p{
+            border: 2px solid red;
+        }
+        #root{
+            margin: auto;
+            box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+            width: 50%;
+        }
+        li{
+            margin: 10px;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+  <script src="https://www.unpkg.com/react@18.2.0/umd/react.development.js"></script>
+  <script src="https://www.unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel">
+    // Your  code will go here
+    const {useState} = React;
+    let Root = ReactDOM.createRoot(document.getElementById('root'));
+
+    function GreetingCard({greeting, name}){
+        return(
+            <li>{greeting}{"! "}{name}</li>
+        )
+    }
+
+    function App(){
+        const cards = [
+        { greeting: "Happy Birthday", name: "John Doe" },
+        { greeting: "Merry Christmas", name: "Jane Smith" },
+        { greeting: "Happy New Year", name: "Alice Johnson" }
+    ];
+    return(
+        <ul>
+            <h2 style={{textDecoration:'underline'}}>Dynamic Greeting Cards</h2>
+         {cards.map((ele,index)=><GreetingCard key={index} greeting={ele.greeting} name={ele.name} />)}
+        </ul>
+    )
+    }
+
+    Root.render(<App/>)
+  </script>
+</html>
