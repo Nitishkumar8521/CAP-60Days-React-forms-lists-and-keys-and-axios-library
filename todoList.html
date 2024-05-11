@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo List Enhancements</title>
+    <style>
+        #root{
+            margin: auto;
+            width: 50%;
+            background-color: rgb(179, 228, 212);
+            padding-left: 10%;
+            box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+        }
+        button{
+            margin: 5px;
+            border-radius: 5px;
+            height: 25px;
+            font-weight: bolder;
+        }
+        h3{
+            color: rgba(226, 49, 217, 0.664);
+            text-decoration:underline;
+        }
+        ol{
+            font-weight: bolder;
+            color: rgb(22, 14, 233);
+        }
+        input{
+            height: 20px;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+  <script src="https://www.unpkg.com/react@18.2.0/umd/react.development.js"></script>
+  <script src="https://www.unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel">
+    // Your  code will go here
+    let Root = ReactDOM.createRoot(document.getElementById('root'));
+    const { useState } = React;
+   
+function TodoApp(){
+    const [todos, setTodos] = useState([]);
+    const [todo, setTodo] = useState("");
+
+    function handleChange(event){
+        let value = event.target.value;
+        setTodo(value);
+        // console.log(value);
+    }
+
+    function handleSubmit(event){
+        event.preventDefault();
+        if(todo===''){
+            alert('Please enter task');
+            return ;
+        }
+        let obj={
+            task:todo,
+            isCompleted:false
+        }
+        let newTodos = [...todos,obj];
+        setTodo('');
+        setTodos(newTodos);
+        console.log(newTodos);
+    }
+
+    function handleIsCompleted(event,index){
+        let newTodos = todos.map((ele,ind)=>{
+            if(ind===index){
+                ele.isCompleted=!ele.isCompleted;
+            }
+            return ele;
+        })
+        setTodos(newTodos);
+    }
+
+    function handleRemove(event,task){
+        let newTodos = todos.filter((ele,ind)=> ele.task!==task);
+        setTodos(newTodos);
+    }
+
+    return(
+        <div>
+            <h3>Todo List Enhancements</h3>
+            <form action="" onSubmit={handleSubmit}>
+                <input type="text" value={todo} placeholder='Enter your todo' 
+                  onChange={handleChange}/>
+                <button type='submit'>Add</button>
+            </form>
+            <br/>
+            <ol>
+            {todos.map((ele,index)=>(
+                
+                <li key={index}>{ele.task}
+                    <button onClick={(event)=>
+                        handleIsCompleted(event,index)} 
+                        style={{margin:'5px', backgroundColor:ele.isCompleted?'red':'green',color:'white'}}>
+                        {ele.isCompleted?'markPending':'markCompleted'}
+                    </button>
+                    <button onClick={(event)=>handleRemove(event,ele.task)} 
+                        style={{margin:'5px',backgroundColor:'red',color:'white'}}>
+                        Remove
+                    </button>
+                </li>        
+                
+            ))}
+            </ol>
+        </div>
+    )
+}
+
+Root.render(<TodoApp/>)
+
+
+  </script>
+</html>
