@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Template</title>
+    <style>
+        .user-card{
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+        }
+        .User-div{
+            box-shadow: rgb(85, 91, 255) 0px 0px 0px 3px, rgb(31, 193, 27) 0px 0px 0px 6px, rgb(255, 217, 19) 0px 0px 0px 9px, rgb(255, 156, 85) 0px 0px 0px 12px;
+        }
+        .user-card>div{
+            margin: 30px;
+            box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+        }
+        .user-card>div>img{
+            width: 100%;
+        }
+    </style>
+  </head>
+  <body>
+    <h2 style="text-decoration: underline;color: blueviolet;">User Profile List with Dynamic Search</h2>
+    <div id="root"></div>
+  </body>
+  <script src="https://www.unpkg.com/react@18.2.0/umd/react.development.js"></script>
+  <script src="https://www.unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script type="text/babel">
+    const {useState, useEffect} = React;
+    let Root = ReactDOM.createRoot(document.getElementById('root'));
+
+    function DisplayUser({user}){
+        const {avatar, email,first_name,id,last_name} = user;
+        return(
+            <div>
+                <img src={avatar} alt="User-image" />
+                <p>Name : {first_name}{" "}{last_name}</p>
+                <p>Email : {email}</p>
+            </div>
+        )
+    }
+
+
+    function App(){
+    const [users, setUsers] = useState([]); // Original list of users
+    const [displayedUsers, setDisplayedUsers] = useState([]); // Filtered or displayed users
+    const [filterUser, setFilterUser] = useState(""); // Filter input
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        if (filterUser!=="") {
+            const filtered = users.filter(user => 
+                user.first_name.toLowerCase().includes(filterUser.toLowerCase()));
+            setDisplayedUsers(filtered);
+        } else {
+            setDisplayedUsers(users);
+        }
+    }, [filterUser, users]);
+
+    async function fetchData(){
+        try {
+            let res = await axios.get('https://reqres.in/api/users');
+            setUsers(res.data.data);
+            setDisplayedUsers(res.data.data); // Initialize displayedUsers with all fetched users
+        } catch (error) {
+            console.error("Fetching error:", error);
+        }
+    }
+
+    function handleChange(e){
+        setFilterUser(e.target.value);
+    }
+
+    return (
+        <div className='User-div'>
+        <label style={{fontWeight:'bolder'}} for="">Search User profile </label>
+        <input 
+            type="text" 
+            value={filterUser} 
+            placeholder='Enter user name' 
+            onChange={handleChange}
+        />
+        <div className='user-card'>
+            {displayedUsers.map(user => (
+                <DisplayUser key={user.id} user={user}/>
+            ))}    
+        </div>
+        </div>
+    )
+}
+
+
+    Root.render(<App />)
+  </script>
+</html>
