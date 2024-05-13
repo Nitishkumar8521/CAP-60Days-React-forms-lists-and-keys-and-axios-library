@@ -1,0 +1,22 @@
+{
+  "todos": [
+    {
+      "title": "html",
+      "isCompleted": true,
+      "assignee": "Nitish",
+      "id": 0.6427522990914629
+    },
+    {
+      "title": "js",
+      "isCompleted": true,
+      "assignee": "Nitish",
+      "id": 0.7832769834829449
+    },
+    {
+      "title": "css",
+      "isCompleted": false,
+      "assignee": "Sudhir",
+      "id": 0.3659734694553147
+    }
+  ]
+}

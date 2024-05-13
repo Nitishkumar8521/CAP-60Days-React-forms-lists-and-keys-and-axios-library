@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo List Enhancements</title>
+    <style>
+        #root{
+            margin: auto;
+            /* width: 50%; */
+            background-color: rgb(179, 228, 212);
+            padding-left: 10%;
+            box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+        }
+        button{
+            margin: 5px;
+            border-radius: 5px;
+            height: 25px;
+            font-weight: bolder;
+        }
+        h3{
+            color: rgba(226, 49, 217, 0.664);
+            text-decoration:underline;
+        }
+        ol{
+            font-weight: bolder;
+            color: rgb(22, 14, 233);
+        }
+        input{
+            height: 20px;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+  <script src="https://www.unpkg.com/react@18.2.0/umd/react.development.js"></script>
+  <script src="https://www.unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script type="text/babel">
+    // Your  code will go here
+    let Root = ReactDOM.createRoot(document.getElementById('root'));
+    const { useState, useEffect} = React;
+
+function TodoApp() {
+    const [todos, setTodos] = useState([]);
+    const [todo, setTodo] = useState({
+        title: "",
+        isCompleted: false,
+        assignee: ""
+    });
+    const [editMode, setEditMode] = useState(false);
+    const [editId, setEditId] = useState(null);
+
+    async function loadTodos() {
+        try {
+            const resp = await axios.get('http://localhost:3000/todos');
+            setTodos(resp.data);
+        } catch (error) {
+            console.error('Error loading todos:', error);
+        }
+    }
+
+    useEffect(() => {
+        loadTodos();
+    }, []);
+
+    // function handleChange(event) {
+    //     const { name, type, checked, value } = event.target;
+    //     setTodo(prev => ({
+    //         ...prev,
+    //         [name]: type === 'checkbox' ? checked : value
+    //     }));
+    // }
+
+    function handleChange(event){
+        const {name,type} = event.target;
+        let value = type==='checkbox'?event.target.checked:type==='Number'?Number(event.target.value):event.target.value;
+        let newTodo={ ...todo,
+            [name]:value
+        }
+        setTodo(newTodo);
+    }
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+        if (editMode) {
+            try {
+                await axios.put(`http://localhost:3000/todos/${editId}`, todo);
+                const updatedTodos = todos.map(t => t.id === editId ? { ...t, ...todo } : t);
+                setTodos(updatedTodos);
+                resetForm();
+            } catch (error) {
+                console.error('Error updating todo:', error);
+            }
+        } else {
+            const newTodo = { ...todo, id: Math.random() }; 
+            try {
+                await axios.post('http://localhost:3000/todos', newTodo);
+                setTodos([...todos,todo]);
+                resetForm();
+            } catch (error) {
+                console.error('Error adding todo:', error);
+            }
+        }
+    }
+
+    function handleEdit(todo) {
+        setTodo({
+            title: todo.title,
+            isCompleted: todo.isCompleted,
+            assignee: todo.assignee
+        });
+        setEditId(todo.id);
+        setEditMode(true);
+    }
+
+    // function handleRemove(title) {
+        // const updatedTodos = todos.filter(t => t.title !== title);
+        // setTodos(updatedTodos);
+    // }
+
+    function handleRemove(id) { 
+        const updatedTodos = todos.filter(t => t.id !== id);
+        setTodos(updatedTodos);
+        axios.delete(`http://localhost:3000/todos/${id}`) 
+        .then(() => console.log('Post deleted')) 
+        .catch(error => console.error('Error deleting post:', error)); 
+    }
+
+
+    function resetForm() {
+        setTodo({
+            title: "",
+            isCompleted: false,
+            assignee: ""
+        });
+        setEditId(null);
+        setEditMode(false);
+    }
+
+    return (
+        <div>
+            <h3>Todo List Enhancements</h3>
+            <form onSubmit={handleSubmit}>
+                <input name='title' type="text" value={todo.title} placeholder='Enter your todo' onChange={handleChange} />
+                <label>Is Completed:</label>
+                <input name='isCompleted' type="checkbox" checked={todo.isCompleted} onChange={handleChange} />
+                <select onChange={handleChange} name="assignee" value={todo.assignee}>
+                    <option value="">Select assignee</option>
+                    <option value="Nitish">Nitish</option>
+                    <option value="Mahesh">Mahesh</option>
+                    <option value="Sudhir">Sudhir</option>
+                </select>
+                <button type='submit'>{editMode ? 'Update Task' : 'Add Task'}</button>
+                {editMode && <button onClick={resetForm}>Cancel Edit</button>}
+            </form>
+            <br />
+            <ol>
+                {todos.length <= 0 ? <p>List is empty</p> : todos.map((ele) => (
+                    <li key={ele.id}>
+                        {ele.title}
+                        <span style={{ margin: '5px', backgroundColor: ele.isCompleted ? 'green' : 'red', color: 'white' }}>
+                            {ele.isCompleted ? 'Completed' : 'Incomplete'}
+                        </span>
+                        <button onClick={() => handleEdit(ele)}>
+                            Edit Task
+                        </button>
+                        <button onClick={() => handleRemove(ele.id)} style={{ margin: '5px', backgroundColor: 'red', color: 'white' }}>
+                            Remove
+                        </button>
+                    </li>
+                ))}
+            </ol>
+        </div>
+    );
+}
+
+
+Root.render(<TodoApp/>)
+
+
+  </script>
+</html>
